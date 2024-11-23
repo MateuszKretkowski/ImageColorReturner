@@ -1,7 +1,7 @@
 from PIL import Image
 import random
 
-def CountColors(texturePath):
+def ColorDuplicatePicker(texturePath):
     texture = Image.open(texturePath)
     colors = {
         "rgb": 0,
@@ -20,7 +20,7 @@ def CountColors(texturePath):
     print("There is NONE duplicate pixels")
     return
 
-def ColorTextureWithShades(texturePath, width, height, outputPath):
+def ColorMapWithShades(texturePath, width, height, blockSize, outputPath):
     texture = Image.open(texturePath)
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     imagePixels = image.load()
@@ -61,7 +61,7 @@ def ColorTextureWithShades(texturePath, width, height, outputPath):
                     imagePixels[pixelX, pixelY] = randomShade
                     colorsList.append(randomShade)
 
-            if (pixelX % 16 == 15) and (pixelY % 16 == 15):
+            if (pixelX % blockSize == blockSize-1) and (pixelY % blockSize  == blockSize-1):
                 currentColorIndex = (currentColorIndex + 1) % len(colors)
 
     image.save(outputPath)
@@ -69,7 +69,10 @@ def ColorTextureWithShades(texturePath, width, height, outputPath):
 def main(): 
     # These are my presets for the map coloring. use the same parameters as your {obj}.map.png .
     # If you don't have a map, you can even color the silhouette with one color. this Funcion will cover the rest.
-    ColorTextureWithShades("./TestImages/Player.map.png", 64, 80, "./TestImages/Player_reworked.map.png")
+
+    # This is my PRESET
+    # ColorTextureWithShades("./TestImages/Player.map.png", 64, 80, 16, "./TestImages/Player_reworked.map.png")
+    return
 
 if __name__ == "__main__":
     main()
