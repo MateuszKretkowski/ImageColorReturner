@@ -3,8 +3,9 @@
 **This Repo will help you determine, if your map has been correctly colored.**
 
 **If your map ISN'T properly colored, don't worry! We have a function which automatically paints your _ENTIRE_ Map.**
-
+#
 The colors may look the same, but they aren't. If you are curious, you can check your reworked map in the ColorDuplicatePicker.
+#
 
 ## Parameters
 - The Canvas of your map can be however big you want it to be.
