@@ -20,6 +20,25 @@ def ColorDuplicatePicker(texturePath):
     print("There is NONE duplicate pixels")
     return
 
+def SimpleColorMap(texturePath, width, height, outputPath):
+    texture = Image.open(texturePath)
+    image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    imagePixels = image.load()
+    newColorsList = []
+    for pixelX in range(texture.width):
+        for pixelY in range(texture.height):
+            color = texture.getpixel((pixelX, pixelY))
+            r, g, b, a = color
+            alpha = a
+            if alpha > 0:
+                randomColor = (random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255), 255)
+                if randomColor in newColorsList:
+                    print("There is a duplicate in the reworked Texture")
+                else:
+                    imagePixels[pixelX, pixelY] = randomColor
+                newColorsList.append(randomColor)
+    image.save(outputPath)
+
 def ColorMapWithShades(texturePath, width, height, blockSize, outputPath):
     texture = Image.open(texturePath)
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
