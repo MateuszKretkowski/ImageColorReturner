@@ -1,4 +1,4 @@
-# **IMAGE MAP FIXER**
+# ***IMAGE MAP FIXER***
 
 **This Repo will help you determine, if your map has been correctly colored.**
 
