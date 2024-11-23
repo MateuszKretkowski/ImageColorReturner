@@ -20,34 +20,56 @@ def CountColors(texturePath):
     print("There is NONE duplicate pixels")
     return
 
-def ColorTexture(texturePath, width, height, outputPath):
+def ColorTextureWithShades(texturePath, width, height, outputPath):
     texture = Image.open(texturePath)
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     imagePixels = image.load()
 
-    newColorsList = []
+    colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+    currentColorIndex = 0
+    colorsList = []
+
     for pixelX in range(texture.width):
         for pixelY in range(texture.height):
             color = texture.getpixel((pixelX, pixelY))
-            r, g, b, a = color
-            alpha = a
+            _, _, _, alpha = color
+            
             if alpha > 0:
-                randomColor = (random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255), 255)
-                if randomColor in newColorsList:
-                    print("There is a duplicate in the reworked Texture")
+                baseColor = colors[currentColorIndex]
+                
+                randomShade = (
+                    baseColor[0] + random.randint(-50, 50),
+                    baseColor[1] + random.randint(-50, 50),
+                    baseColor[2] + random.randint(-50, 50),
+                    255
+                )
+                randomShade = tuple(max(0, min(255, c)) for c in randomShade)
+
+                while randomShade in colorsList:
+                    print("There is a DUPLICATE, re-rolling...")
+                    randomShade = (
+                        baseColor[0] + random.randint(-50, 50),
+                        baseColor[1] + random.randint(-50, 50),
+                        baseColor[2] + random.randint(-50, 50),
+                        255
+                    )
+                    randomShade = tuple(max(0, min(255, c)) for c in randomShade)
+
+                if randomShade in colorsList:
+                    print("there is STILL a duplicate")
                 else:
-                    imagePixels[pixelX, pixelY] = randomColor
-                newColorsList.append(randomColor)
+                    imagePixels[pixelX, pixelY] = randomShade
+                    colorsList.append(randomShade)
+
+            if (pixelX % 16 == 15) and (pixelY % 16 == 15):
+                currentColorIndex = (currentColorIndex + 1) % len(colors)
+
     image.save(outputPath)
 
-
-
 def main(): 
-    CountColors("./TestImages/Player.map.png")
-
     # These are my presets for the map coloring. use the same parameters as your {obj}.map.png .
     # If you don't have a map, you can even color the silhouette with one color. this Funcion will cover the rest.
-    ColorTexture("./TestImages/Player.map.png", 64, 80, "./TestImages/Player_reworked.map.png")
+    ColorTextureWithShades("./TestImages/Player.map.png", 64, 80, "./TestImages/Player_reworked.map.png")
 
 if __name__ == "__main__":
     main()
