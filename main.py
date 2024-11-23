@@ -1,4 +1,7 @@
 from color_utils import SimpleColorMap, ColorDuplicatePicker, ColorMapWithShades
+from texture_utils import GetTextureBits
+
+armorPiecesList = ["head_front", "head_back", "torso_front", "torso_back", "leftArm_back", "leftArm_front", "leftHand_back", "leftHand_front", "rightArm_front", "vrightArm_back", "rightHand_front", "rightHand_back", "leftLeg_back", "leftLeg_front", "rightLeg_back", "rightLeg_front", "leftFoo_front", "leftFoot_back", "rightFoot_front", "rightFoot_back"]
 
 def main(): 
     # These are my presets for the map coloring. use the same parameters as your {obj}.map.png .
@@ -6,7 +9,8 @@ def main():
 
     # This is my PRESET
     # ColorTextureWithShades("./TestImages/Player.map.png", 64, 80, 16, "./TestImages/Player_reworked.map.png")
-    return
+
+    GetTextureBits("./TestImages/Player_reworked.map.png", armorPiecesList, 16, 16, "./TestImages/BasicArmor/Player_basicArmor_", 4, 5)
 
 if __name__ == "__main__":
     main()
