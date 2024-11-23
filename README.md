@@ -2,7 +2,7 @@
 
 **This Repo will help you determine, if your map has been correctly colored.**
 
-**If not, don't worry! We have a function which automatically paints your _ENTIRE_ Map.**
+**If your map ISN'T properly colored, don't worry! We have a function which automatically paints your _ENTIRE_ Map.**
 
 ## Parameters
 - The Canvas of your map can be however big you want it to be.
