@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Items } from "./Components/items";
 import { Main } from "./Components/Main/Main";
+import { NavBar } from "./Components/NavBar/NavBar";
 
 function App() {
 
 
   return (
     <Router>
-
+        <NavBar />
         <Routes>
           {/* Definiowanie tras */}
           <Route path="/" element={<Main />} />
