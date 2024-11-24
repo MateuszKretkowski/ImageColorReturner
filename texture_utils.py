@@ -12,7 +12,7 @@ def GetTextureBits(texturePath, objectsList, width, height, outputPath, mapWidth
             y_offset = height * i
             for x in range(width):
                 for y in range(height):
-                    color = texture.getpixel((x + x_offset, y + x_offset))
+                    color = texture.getpixel((x + x_offset, y + y_offset))
                     imagePixels[x, y] = color
                     r, g, b, a = color
                     alpha = a
