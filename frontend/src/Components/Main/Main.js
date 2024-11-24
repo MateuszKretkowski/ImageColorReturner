@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { NavBar } from "../NavBar/NavBar";
-import normalmapreworked from "./normalmapreworked.png"
+import normalmapreworked from "../images/normalmapreworked.png"
 import "./header.css"
 
 export const Main = () => {

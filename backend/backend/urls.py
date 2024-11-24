@@ -21,6 +21,5 @@ from textureMapAssistant.views import get_items, home, GetTextureBits
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('items/', get_items),
-    path('images/', GetTextureBits),
-    path('', home),
+    path('api/get-texture-bits/', GetTextureBits, name='get_texture_bits'),
 ]
