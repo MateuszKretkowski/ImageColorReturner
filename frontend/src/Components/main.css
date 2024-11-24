@@ -32,3 +32,8 @@ button:hover {
     background-color: rgb(14, 13, 13);
     color: #fafafa;
 }
+
+.title {
+    margin-bottom: 8px;
+    font-weight: 300;
+}
