@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import normalmapreworked from "../images/normalmapreworked.png"
-import "./gtb.css"
+import { useState } from "react";
+import normalmapreworked from "../images/normalmapreworked.png";
+import { FileParameterFiller } from "../FileParametersFiller/FileParameterFiller";
+import "./gtb.css";
 
 export const GetTextureBits = () => {
     const [loading, setLoading] = useState(false);
@@ -8,66 +9,74 @@ export const GetTextureBits = () => {
     const [imgData, setImgData] = useState(normalmapreworked);
 
     const [data, setData] = useState({
-      width: 64,
-      height: 80,
-      mapWidth: 4,
-      mapHeight: 4,
-      objectsList: [],
-  });
+        width: 64,
+        height: 80,
+        mapWidth: 4,
+        mapHeight: 4,
+        objectsList: [],
+    });
 
-  const [isToggled, setIsToggled] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsToggled((prevState) => !prevState);
-    }, 460);
-
-    return () => clearInterval(interval);
-  }, []);
-
-    const fetchData = async (param1, param2) => {
+    const fetchData = async () => {
         setLoading(true);
         setError(null);
+
         try {
-          const response = await fetch(`http://127.0.0.1:8000/get-texture-bits/?texturePath=${imgData}&
-            width=${data.width}&height=${data.height}&mapWidth=${data.mapWidth}&mapHeight=${data.mapHeight}&objectsList[]=${data.objectsList}
-            &objectsList[]=${data.objectsList}`);
+            const params = new URLSearchParams({
+                texturePath: imgData,
+                width: data.width,
+                height: data.height,
+                mapWidth: data.mapWidth,
+                mapHeight: data.mapHeight,
+            });
 
-          if (!response.ok) {
-            throw new Error('Problem with fetching data');
-          }
-          const result = await response.json();
-          setData(result);
+            // Dodaj obiekty z `objectsList` jako osobne parametry
+            data.objectsList.forEach((item, index) => {
+                params.append(`objectsList[${index}]`, item);
+            });
+
+            const response = await fetch(`http://127.0.0.1:8000/get-texture-bits/?${params.toString()}`);
+
+            if (!response.ok) {
+                throw new Error("Problem with fetching data");
+            }
+
+            const result = await response.json();
+            setData(result);
         } catch (err) {
-          setError(err.message);
+            setError(err.message);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
-
-          //<div>
-           // {loading && <p>Loading...</p>}
-            //{error && <p>Error: {error}</p>}
-            //{data && <pre>const data = {JSON.stringify(data, null, 2)}</pre>}
-          //</div>
+    };
 
     return (
         <div className="Main">
-          <div className="main_container gtb_container">
-          <div className="sides-wrapper">
-            <div className="left_side gtb_left_side">
-              {data && <pre>const data = {JSON.stringify(data, null, 2)}{isToggled ? "_" : ""}</pre>}
+            <div className="main_container gtb_container">
+                <div className="sides-wrapper">
+                    <div className="left_side gtb_left_side">
+                        <FileParameterFiller
+                            data={data}
+                            setData={setData}
+                            stringArray={["width", "height", "mapWidth", "mapHeight", "objectsList"]}
+                        />
+                    </div>
+                    <div className="right_side gtb_rigth_side">
+                        <div className="image-wrapper">
+                            <img
+                                src={imgData ? normalmapreworked : imgData}
+                                className="mapImage gtb_image"
+                                alt="Texture"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="button-wrapper">
+                    <button onClick={fetchData} disabled={loading}>
+                        {loading ? "Loading..." : "Get Texture Bits"}
+                    </button>
+                </div>
+                {error && <p className="error">Error: {error}</p>}
             </div>
-            <div className="right_side gtb_rigth_side">
-            <div className="image-wrapper">
-              <img src={imgData ? normalmapreworked : imgData} className="mapImage gtb_image" />
-            </div>
-            </div>
-          </div>
-            <div className="button-wrapper">
-              <button onClick={() => fetchData({}, 'value2')}>Get Texture Bits</button>
-            </div>
-          </div>
         </div>
-    )
-}
+    );
+};

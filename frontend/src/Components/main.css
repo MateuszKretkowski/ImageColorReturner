@@ -22,10 +22,10 @@ body {
 }
 
 button {
-    padding: 8px 8px;
-    border: 2px solid rgb(14, 13, 13);
+    padding: 8px 16px;
+    border: 1px solid rgb(14, 13, 13);
     background-color: transparent;
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
 button:hover {
