@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
-export const FileParameterFiller = ({ data, setData, stringArray, lastIndex }) => {
+export const FileParameterFiller = ({ data, setData, stringArray }) => {
     const [isToggled, setIsToggled] = useState(false);
 
     useEffect(() => {
@@ -18,42 +18,76 @@ export const FileParameterFiller = ({ data, setData, stringArray, lastIndex }) =
         }));
     };
 
-    const [list, setList] = useState([]);
     const AddObjectToList = (name) => {
-        setList((prevData) => [...prevData, name]);
+        setData((prevData) => ({
+            ...prevData,
+            objectsList: [...prevData.objectsList, name],
+        }));
     };
+
+    useEffect(() => {
+        console.log(data);
+    }, [data]);
 
     return (
         <div className="fpf">
-            <span>const data = &#123;</span> {/* Wizualne {} */}
+            <span>const data = &#123;</span>
             {stringArray?.map((key, index) => (
                 <pre className="fpf_pre" key={index}>
-                    {/* Jeśli to nie ostatni element, renderujemy input */}
                     {index !== stringArray.length - 1 && (
                         <>
-                            {key}: <input
+                            {key}:{" "}
+                            <input
                                 type="text"
                                 value={data[key] || ""}
                                 onChange={(e) => handleInputChange(key, e.target.value)}
                             />
                         </>
                     )}
-    
-                    {/* Jeśli to ostatni element, renderujemy przycisk */}
                     {index === stringArray.length - 1 && (
                         <>
-                        {key}: <button className="small_btn" onClick={() => {AddObjectToList("siema")}}>Add New Object</button>
+                            {key}:{" "}
+                            <button
+                                className="small_btn"
+                                onClick={() => AddObjectToList(`Object ${data.objectsList.length + 1}`)}
+                            >
+                                Add New Object
+                            </button>
                         </>
                     )}
                 </pre>
             ))}
             <div className="objects-wrapper">
-                {list?.map((item, index) => (
-                    <><input key={index} placeholder="Your Object" className="alternative_input"></input><br /></>
+                {data.objectsList?.map((item, index) => (
+                    <div key={index} className="object-item">
+                        <input
+                            placeholder={`Object ${index + 1}`}
+                            value={item}
+                            className="alternative_input"
+                            onChange={(e) => {
+                                setData((prevData) => {
+                                    const updatedObjects = [...prevData.objectsList];
+                                    updatedObjects[index] = e.target.value;
+                                    return { ...prevData, objectsList: updatedObjects };
+                                });
+                            }}
+                        />
+                        <button
+                            className="small_btn"
+                            onClick={() => {
+                                setData((prevData) => ({
+                                    ...prevData,
+                                    objectsList: prevData.objectsList.filter((_, i) => i !== index),
+                                }));
+                            }}
+                        >
+                            Remove
+                        </button>
+                    </div>
                 ))}
             </div>
             <div>
-                <span>&#125;</span> {/* Wizualne zamknięcie nawiasu */}
+                <span>&#125;</span>
                 {isToggled ? "_" : ""}
             </div>
         </div>
