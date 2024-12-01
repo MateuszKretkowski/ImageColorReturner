@@ -21,8 +21,9 @@ export const GetTextureBits = () => {
         setError(null);
 
         try {
+            const encodedTexturePath = encodeURIComponent(imgData);
             const params = new URLSearchParams({
-                texturePath: imgData,
+                texturePath: encodedTexturePath,
                 width: data.width,
                 height: data.height,
                 mapWidth: data.mapWidth,
@@ -30,11 +31,11 @@ export const GetTextureBits = () => {
             });
 
             // Dodaj obiekty z `objectsList` jako osobne parametry
-            data.objectsList.forEach((item, index) => {
-                params.append(`objectsList[${index}]`, item);
+            data.objectsList.forEach((item) => {
+                params.append("objectsList[]", item);
             });
 
-            const response = await fetch(`http://127.0.0.1:8000/get-texture-bits/?${params.toString()}`);
+            const response = await fetch(`http://127.0.0.1:8000/api/get_texture_bits/?${params.toString()}`);
 
             if (!response.ok) {
                 throw new Error("Problem with fetching data");
