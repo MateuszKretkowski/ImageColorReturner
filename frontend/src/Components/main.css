@@ -45,6 +45,10 @@ input {
     font-weight: 600;
 }
 
+.alternative_input {
+    font-weight: 500;
+}
+
 .small_btn {
     position: relative;
     padding: 4px 4px;
@@ -81,10 +85,23 @@ input {
     width: 100%;
 }
 
+.fpf {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+}
+
 .fpf_pre {
     position: relative;
     display: flex;
     justify-content: start;
     align-items: center;
 
+}
+
+.objects-wrapper {
+    height: 160px;
+    overflow-y: scroll;
 }

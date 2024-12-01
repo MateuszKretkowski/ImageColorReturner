@@ -18,6 +18,11 @@ export const FileParameterFiller = ({ data, setData, stringArray, lastIndex }) =
         }));
     };
 
+    const [list, setList] = useState([]);
+    const AddObjectToList = (name) => {
+        setList((prevData) => [...prevData, name]);
+    };
+
     return (
         <div className="fpf">
             <span>const data = &#123;</span> {/* Wizualne {} */}
@@ -37,13 +42,20 @@ export const FileParameterFiller = ({ data, setData, stringArray, lastIndex }) =
                     {/* Jeśli to ostatni element, renderujemy przycisk */}
                     {index === stringArray.length - 1 && (
                         <>
-                        {key}: <button className="small_btn">Add New Object</button>
+                        {key}: <button className="small_btn" onClick={() => {AddObjectToList("siema")}}>Add New Object</button>
                         </>
                     )}
                 </pre>
             ))}
-            <span>&#125;</span> {/* Wizualne zamknięcie nawiasu */}
-            {isToggled ? "_" : ""}
+            <div className="objects-wrapper">
+                {list?.map((item, index) => (
+                    <><input key={index} placeholder="Your Object" className="alternative_input"></input><br /></>
+                ))}
+            </div>
+            <div>
+                <span>&#125;</span> {/* Wizualne zamknięcie nawiasu */}
+                {isToggled ? "_" : ""}
+            </div>
         </div>
     );
 };
