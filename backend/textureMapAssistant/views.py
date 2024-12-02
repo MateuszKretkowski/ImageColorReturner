@@ -1,61 +1,86 @@
 from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from PIL import Image
-import os
 import io
-import base64
+import zipfile
 
-def get_items(request):
-    return JsonResponse({"items": ["item1", "item2", "item3"]})
-
-def home(request):
-    return JsonResponse({"message": "Welcome to the homepage!"})
-
-
-# outputPath should be something like: "./TestImages/{object}_basicArmor_"
+@csrf_exempt
 def get_texture_bits(request):
-    # Pobieranie parametrów z zapytania GET
-    texture_path = request.GET.get("texturePath")
-    objects_list = request.GET.getlist("objectsList[]")
-    width = int(request.GET.get("width", 64))
-    height = int(request.GET.get("height", 80))
-    map_width = int(request.GET.get("mapWidth", 4))
-    map_height = int(request.GET.get("mapHeight", 4))
-
-    if not texture_path or not objects_list:
-        return JsonResponse({"error": "Missing required parameters"}, status=400)
-
     try:
-        # Otwieranie tekstury
-        texture = Image.open(texture_path)
-        image_list = {}
+        if request.method != "POST":
+            return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
-        list_index = 0
-        for u in range(map_width):
-            for i in range(map_height):
-                if list_index >= len(objects_list):
-                    break
+        # Debugging POST and FILES
+        print("POST data:", request.POST)
+        print("FILES data:", request.FILES)
 
-                # Tworzenie nowego obrazu z wycinkiem
-                image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-                image_pixels = image.load()
-                x_offset = width * u
-                y_offset = height * i
+        texture_file = request.FILES.get("texturePath")
+        if not texture_file:
+            print("Error: No file received.")
+            return JsonResponse({"error": "No file received."}, status=400)
 
-                for x in range(width):
-                    for y in range(height):
-                        color = texture.getpixel((x + x_offset, y + y_offset))
-                        image_pixels[x, y] = color
+        objects_list = request.POST.getlist("objectsList")
+        if not objects_list:
+            print("Error: No objects list received.")
+            return JsonResponse({"error": "No objects list received."}, status=400)
 
-                # Kodowanie obrazu jako Base64
-                buffered = io.BytesIO()
-                image.save(buffered, format="PNG")
-                encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        width = int(request.POST.get("width"))
+        height = int(request.POST.get("height"))
+        map_width = int(request.POST.get("mapWidth"))
+        map_height = int(request.POST.get("mapHeight"))
 
-                # Przypisywanie obrazu do obiektu
-                image_list[objects_list[list_index]] = f"data:image/png;base64,{encoded_image}"
-                list_index += 1
+        texture = Image.open(texture_file)
+        max_map_width = texture.size[0] // width
+        max_map_height = texture.size[1] // height
 
-        return JsonResponse({"images": image_list})
+        if map_width > max_map_width or map_height > max_map_height:
+            print("Error: Map dimensions exceed texture size.")
+            return JsonResponse({
+                "error": f"Map dimensions exceed texture size. Max mapWidth={max_map_width}, Max mapHeight={max_map_height}"
+            }, status=400)
+
+        # Tworzenie pliku ZIP
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            list_index = 0
+            for u in range(map_width):
+                for i in range(map_height):
+                    if list_index >= len(objects_list):
+                        break
+
+                    # Tworzenie nowego fragmentu obrazu
+                    print(f"Creating fragment for object: {objects_list[list_index]}")
+                    image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+                    image_pixels = image.load()
+                    x_offset = width * u
+                    y_offset = height * i
+
+                    for x in range(width):
+                        for y in range(height):
+                            try:
+                                color = texture.getpixel((x + x_offset, y + y_offset))
+                                image_pixels[x, y] = color
+                            except IndexError:
+                                print(f"Pixel out of bounds at ({x + x_offset}, {y + y_offset})")
+                                return JsonResponse({"error": "Pixel coordinates out of bounds."}, status=400)
+
+                    # Zapis fragmentu obrazu do pamięci jako PNG
+                    image_buffer = io.BytesIO()
+                    image.save(image_buffer, format="PNG")
+                    image_buffer.seek(0)
+
+                    # Dodanie obrazu do ZIP
+                    file_name = f"{objects_list[list_index]}.png"
+                    print(f"Adding {file_name} to ZIP")
+                    zip_file.writestr(file_name, image_buffer.read())
+                    list_index += 1
+
+        # Przygotowanie odpowiedzi z plikiem ZIP
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = 'attachment; filename="textures.zip"'
+        return response
 
     except Exception as e:
+        print(f"Unhandled error: {e}")
         return JsonResponse({"error": str(e)}, status=500)

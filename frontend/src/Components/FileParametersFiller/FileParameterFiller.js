@@ -38,7 +38,7 @@ export const FileParameterFiller = ({ data, setData, stringArray }) => {
                         <>
                             {key}:{" "}
                             <input
-                                type="text"
+                                type="number"
                                 value={data[key] || ""}
                                 onChange={(e) => handleInputChange(key, e.target.value)}
                             />
@@ -46,7 +46,7 @@ export const FileParameterFiller = ({ data, setData, stringArray }) => {
                     )}
                     {index === stringArray.length - 1 && (
                         <>
-                            {key}:{" "}
+                            {key}:{"text"}
                             <button
                                 className="small_btn"
                                 onClick={() => AddObjectToList(`Object ${data.objectsList.length + 1}`)}

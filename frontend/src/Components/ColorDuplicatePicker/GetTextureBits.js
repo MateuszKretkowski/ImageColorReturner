@@ -1,48 +1,67 @@
 import { useState } from "react";
-import normalmapreworked from "../images/normalmapreworked.png";
 import { FileParameterFiller } from "../FileParametersFiller/FileParameterFiller";
 import "./gtb.css";
 
 export const GetTextureBits = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [imgData, setImgData] = useState(normalmapreworked);
+    const [imgData, setImgData] = useState(null);
 
     const [data, setData] = useState({
-        width: 64,
-        height: 80,
+        width: 16,
+        height: 16,
         mapWidth: 4,
-        mapHeight: 4,
-        objectsList: [],
+        mapHeight: 5,
+        objectsList: [], // Ensure this is updated with values before sending
     });
 
-    const fetchData = async () => {
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setImgData(file);
+        }
+    };
+
+    const fetchZip = async () => {
+        if (!imgData) {
+            setError("Please upload an image first.");
+            return;
+        }
+    
         setLoading(true);
         setError(null);
-
+    
         try {
-            const encodedTexturePath = encodeURIComponent(imgData);
-            const params = new URLSearchParams({
-                texturePath: encodedTexturePath,
-                width: data.width,
-                height: data.height,
-                mapWidth: data.mapWidth,
-                mapHeight: data.mapHeight,
-            });
-
-            // Dodaj obiekty z `objectsList` jako osobne parametry
+            const formData = new FormData();
+            formData.append("texturePath", imgData);
+            formData.append("width", data.width);
+            formData.append("height", data.height);
+            formData.append("mapWidth", data.mapWidth);
+            formData.append("mapHeight", data.mapHeight);
             data.objectsList.forEach((item) => {
-                params.append("objectsList[]", item);
+                formData.append("objectsList", item);
             });
-
-            const response = await fetch(`http://127.0.0.1:8000/api/get_texture_bits/?${params.toString()}`);
-
+    
+            const response = await fetch("http://127.0.0.1:8000/api/get_texture_bits/", {
+                method: "POST",
+                body: formData,
+            });
+    
             if (!response.ok) {
-                throw new Error("Problem with fetching data");
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Unknown error occurred");
             }
-
-            const result = await response.json();
-            setData(result);
+    
+            // Pobieranie pliku ZIP
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "textures.zip";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -60,19 +79,24 @@ export const GetTextureBits = () => {
                             setData={setData}
                             stringArray={["width", "height", "mapWidth", "mapHeight", "objectsList"]}
                         />
+                        <div className="file-upload">
+                            <input type="file" onChange={handleImageChange} />
+                        </div>
                     </div>
                     <div className="right_side gtb_rigth_side">
-                        <div className="image-wrapper">
-                            <img
-                                src={imgData ? normalmapreworked : imgData}
-                                className="mapImage gtb_image"
-                                alt="Texture"
-                            />
-                        </div>
+                        {imgData && (
+                            <div className="image-wrapper">
+                                <img
+                                    src={URL.createObjectURL(imgData)}
+                                    className="mapImage gtb_image"
+                                    alt="Texture"
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="button-wrapper">
-                    <button onClick={fetchData} disabled={loading}>
+                    <button onClick={fetchZip} disabled={loading}>
                         {loading ? "Loading..." : "Get Texture Bits"}
                     </button>
                 </div>
