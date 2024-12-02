@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { FileParameterFiller } from "../FileParametersFiller/FileParameterFiller";
+import normalmapreworked from "../images/normalmapreworked.png"
 import "./gtb.css";
 
 export const GetTextureBits = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [imgData, setImgData] = useState(null);
+    const [imgData, setImgData] = useState(normalmapreworked);
 
     const [data, setData] = useState({
         width: 16,
@@ -79,21 +80,19 @@ export const GetTextureBits = () => {
                             setData={setData}
                             stringArray={["width", "height", "mapWidth", "mapHeight", "objectsList"]}
                         />
-                        <div className="file-upload">
-                            <input type="file" onChange={handleImageChange} />
-                        </div>
                     </div>
                     <div className="right_side gtb_rigth_side">
-                        {imgData && (
-                            <div className="image-wrapper">
-                                <img
-                                    src={URL.createObjectURL(imgData)}
-                                    className="mapImage gtb_image"
-                                    alt="Texture"
-                                />
-                            </div>
-                        )}
-                    </div>
+    {imgData && (
+        <div className="image-wrapper">
+            <img
+                src={imgData === normalmapreworked ? imgData : URL.createObjectURL(imgData)}
+                className="mapImage gtb_image"
+                alt="Texture"
+            />
+            <input type="file" onChange={handleImageChange} className="img_input" id="myfile" name="myfile" /><br></br>
+        </div>
+    )}
+</div>
                 </div>
                 <div className="button-wrapper">
                     <button onClick={fetchZip} disabled={loading}>
